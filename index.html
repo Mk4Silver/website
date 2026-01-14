@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <title>Gaming & Racing Club</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #0f0f0f;
@@ -12,47 +17,96 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 80vh;
-      margin: auto;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
     }
+
     .box {
+      width: 100%;
+      max-width: 520px;
       text-align: center;
-      padding: 50px;
+      padding: 30px 25px;
       border-radius: 25px;
       background: #000000;
-      box-shadow: 0 0 100px black
+      box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
     }
-    h1 { margin-bottom: auto; }
-    p { opacity: .9; }
+
+    .logo {
+      width: 100%;
+      max-width: 350px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    p {
+      opacity: 0.9;
+      margin: 6px 0;
+      font-size: 16px;
+    }
+
+    .gif {
+      width: 180px;
+      height: auto;
+      display: block;
+      margin: 20px auto;
+    }
+
     .wheel-btn {
-        margin-top: 25px;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 12px;
-        border: none;
-        cursor: pointer;
-        background: #22c55e;
-        color: black;
-        font-weight: bold;
-        transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 20px;
+      padding: 14px 28px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: #22c55e;
+      color: black;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+      max-width: 260px;
     }
 
     .wheel-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 15px #22c55e;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #22c55e;
+    }
+
+    a {
+      text-decoration: none;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Desktop enhancements */
+    @media (min-width: 768px) {
+      .box {
+        padding: 40px;
+      }
+
+      p {
+        font-size: 17px;
+      }
+
+      .gif {
+        width: 220px;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="box">
-    <img src="group.jpeg" alt="Group Logo" width="475" height="475">
+    <img src="group.jpeg" alt="Group Logo" class="logo">
+
     <p>Hey guys</p>
     <p>🚧 Website under construction 🚧</p>
     <p>until god knows when</p>
-    <img src="working.gif" alt="man working meme" style="width:225px;height:201px; display:block; margin: 0 auto;">
-    
-    <a href="wheel.html" style="display:block">
-    <button class="wheel-btn">🎡 Spin the wheel!</button>
+
+    <img src="working.gif" alt="man working meme" class="gif">
+
+    <a href="wheel.html">
+      <button class="wheel-btn">🎡 Spin the wheel!</button>
     </a>
   </div>
 </body>
