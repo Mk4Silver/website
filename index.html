@@ -24,15 +24,36 @@
     }
     h1 { margin-bottom: auto; }
     p { opacity: .9; }
+    .wheel-btn {
+        margin-top: 25px;
+        padding: 15px 30px;
+        font-size: 18px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        background: #22c55e;
+        color: black;
+        font-weight: bold;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .wheel-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px #22c55e;
+    }
   </style>
 </head>
 <body>
   <div class="box">
     <img src="group.jpeg" alt="Group Logo" width="475" height="475">
-    <p>Hey guys<p>
+    <p>Hey guys</p>
     <p>🚧 Website under construction 🚧</p>
     <p>until god knows when</p>
-    <img src="working.gif" alt="man working meme" style="width:225px;height:201px;">
+    <img src="working.gif" alt="man working meme" style="width:225px;height:201px; display:block; margin: 0 auto;">
+    
+    <a href="wheel.html" style="display:block">
+    <button class="wheel-btn">🎡 Spin the wheel!</button>
+    </a>
   </div>
 </body>
 </html>
