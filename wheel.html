@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spin the Wheel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f0f0f;
+    color: #e5e7eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .container {
+    background: #000;
+    padding: 30px;
+    border-radius: 20px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 50px black;
+    z-index: 2;
+  }
+
+  .pointer {
+    width: 0;
+    height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 24px solid #facc15;
+    margin: auto;
+  }
+
+  canvas#wheel {
+    display: block;
+    margin: 20px auto;
+  }
+
+  input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 10px;
+  }
+
+  button {
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .add { background: #22c55e; }
+  .spin { background: #3b82f6; color: white; }
+  .clear { background: #ef4444; color: white; }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  li {
+    background: #1f2933;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .winner {
+    margin-top: 15px;
+    font-size: 22px;
+    color: #facc15;
+    font-weight: bold;
+    text-shadow: 0 0 10px #facc15;
+  }
+
+  /* Confetti layer */
+  #confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+</style>
+</head>
+
+<body>
+
+<canvas id="confetti"></canvas>
+
+<div class="container">
+  <h2>🎡 Spin the wheel!</h2>
+  <p>Might help us what game to play</p>
+
+  <div class="pointer"></div>
+  <canvas id="wheel" width="300" height="300"></canvas>
+
+  <input id="nameInput" type="text" placeholder="Enter name">
+  <br>
+  <button class="add" id="addBtn">Add</button>
+
+  <ul id="nameList"></ul>
+
+  <button class="spin" id="spinBtn">Spin</button>
+  <button class="clear" id="clearBtn">Clear</button>
+
+  <div class="winner" id="winner"></div>
+</div>
+
+<script>
+/* ================== SETUP ================== */
+const wheel = document.getElementById("wheel");
+const ctx = wheel.getContext("2d");
+const input = document.getElementById("nameInput");
+const list = document.getElementById("nameList");
+const winnerEl = document.getElementById("winner");
+
+const confettiCanvas = document.getElementById("confetti");
+const cctx = confettiCanvas.getContext("2d");
+
+let names = [];
+let angle = 0;
+let spinning = false;
+let winnerIndex = null;
+
+/* ================== EVENTS ================== */
+document.getElementById("addBtn").onclick = addName;
+document.getElementById("spinBtn").onclick = spin;
+document.getElementById("clearBtn").onclick = clearAll;
+
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    addName();
+  }
+});
+
+window.addEventListener("resize", resizeConfetti);
+
+/* ================== FUNCTIONS ================== */
+function addName() {
+  const name = input.value.trim();
+  if (!name) return;
+  names.push(name);
+  input.value = "";
+  renderList();
+  drawWheel();
+}
+
+function removeName(i) {
+  names.splice(i, 1);
+  renderList();
+  drawWheel();
+}
+
+function renderList() {
+  list.innerHTML = "";
+  names.forEach((n, i) => {
+    const li = document.createElement("li");
+    li.textContent = n + " ❌";
+    li.onclick = () => removeName(i);
+    list.appendChild(li);
+  });
+}
+
+function drawWheel() {
+  ctx.clearRect(0, 0, 300, 300);
+  if (!names.length) return;
+
+  const slice = (2 * Math.PI) / names.length;
+
+  names.forEach((name, i) => {
+    ctx.beginPath();
+    ctx.moveTo(150, 150);
+    ctx.arc(150, 150, 140, angle + i * slice, angle + (i + 1) * slice);
+    ctx.fillStyle = `hsl(${i * 360 / names.length}, 70%, 50%)`;
+    ctx.fill();
+
+    ctx.lineWidth = i === winnerIndex ? 6 : 1;
+    ctx.strokeStyle = i === winnerIndex ? "#facc15" : "#000";
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate(angle + (i + 0.5) * slice);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "white";
+    ctx.font = "14px Arial";
+    ctx.fillText(name, 130, 5);
+    ctx.restore();
+  });
+}
+
+function spin() {
+  if (spinning || names.length === 0) return;
+  spinning = true;
+  winnerIndex = null;
+  winnerEl.textContent = "";
+
+  const slice = (2 * Math.PI) / names.length;
+  const targetIndex = Math.floor(Math.random() * names.length);
+
+  const targetAngle = (3 * Math.PI) / 2 - (targetIndex + 0.5) * slice;
+  const fullSpins = 8 * 2 * Math.PI;
+  const finalAngle =
+    angle + fullSpins + (targetAngle - (angle % (2 * Math.PI)));
+
+  const start = performance.now();
+  const duration = 3500;
+  const startAngle = angle;
+
+  function animate(t) {
+    const p = Math.min((t - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    angle = startAngle + (finalAngle - startAngle) * ease;
+    drawWheel();
+    if (p < 1) requestAnimationFrame(animate);
+    else finishSpin(targetIndex);
+  }
+  requestAnimationFrame(animate);
+}
+
+function finishSpin(i) {
+  spinning = false;
+  winnerIndex = i;
+  drawWheel();
+  winnerEl.textContent = "Winner: " + names[i];
+  startConfetti();
+}
+
+function clearAll() {
+  names = [];
+  angle = 0;
+  winnerIndex = null;
+  renderList();
+  drawWheel();
+  winnerEl.textContent = "";
+}
+
+/* ================== CONFETTI ================== */
+function resizeConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeConfetti();
+
+let confetti = [];
+
+function startConfetti() {
+  confetti = Array.from({ length: 200 }, () => ({
+    x: Math.random() * confettiCanvas.width,
+    y: Math.random() * -confettiCanvas.height,
+    r: Math.random() * 6 + 4,
+    d: Math.random() * 5 + 2,
+    c: `hsl(${Math.random() * 360}, 80%, 60%)`
+  }));
+  animateConfetti();
+  setTimeout(() => confetti = [], 3000);
+}
+
+function animateConfetti() {
+  cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confetti.forEach(p => {
+    cctx.beginPath();
+    cctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    cctx.fillStyle = p.c;
+    cctx.fill();
+    p.y += p.d;
+    p.x += Math.sin(p.y * 0.01);
+  });
+  if (confetti.length) requestAnimationFrame(animateConfetti);
+}
+
+/* ================== INIT ================== */
+drawWheel();
+</script>
+
+</body>
+</html>
